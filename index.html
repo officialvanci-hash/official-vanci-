@@ -1,0 +1,187 @@
+// FULLY UPDATED VERSION
+// Ultra‑high animation + Firebase backend ready + More secret hacking effects
+// (React + Tailwind + Firebase integrated structure)
+
+import React, { useState, useEffect } from "react";
+import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+// ---------------- FIREBASE CONFIG ----------------
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID",
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+// --------------------------------------------------
+
+export default function App() {
+  const [ownerLogged, setOwnerLogged] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
+  const [userMessageSent, setUserMessageSent] = useState(false);
+
+  const ownerEmail = "officialvanci@gmail.com";
+  const ownerPass = "(arise vanci)";
+  const secretPass = "SECRET-ACCESS";
+
+  // Animated Intro Skip
+  const [showIntro, setShowIntro] = useState(true);
+  useEffect(() => {
+    setTimeout(() => setShowIntro(false), 4000);
+  }, []);
+
+  // Firebase owner login
+  const handleOwnerLogin = async (e) => {
+    e.preventDefault();
+    try {
+      if (e.target.email.value !== ownerEmail) return alert("Wrong Email");
+      if (e.target.pass.value !== ownerPass) return alert("Wrong Password");
+
+      await signInWithEmailAndPassword(auth, ownerEmail, "dummy123");
+      setOwnerLogged(true);
+    } catch (err) {
+      setOwnerLogged(true); // local owner login fallback
+    }
+  };
+
+  // SECRET SITE ACCESS
+  const openSecretSite = () => {
+    const p = prompt("Enter secret code:");
+    if (p === secretPass) setShowSecret(true);
+    else alert("ACCESS DENIED: FIREWALL TRIGGERED ❌");
+  };
+
+  // Send message to Firebase
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (userMessageSent) return;
+
+    await addDoc(collection(db, "messages"), {
+      email: e.target.email.value,
+      name: e.target.name.value,
+      phone: e.target.phone.value,
+      message: e.target.msg.value,
+      time: serverTimestamp(),
+    });
+
+    alert("Message delivered to Owner Panel ✔");
+    setUserMessageSent(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
+      {/* -------------------- INTRO ANIMATION -------------------- */}
+      {showIntro && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black flex flex-col items-center justify-center animate-intro">
+          <h1 className="text-7xl font-bold neon-text">VANCI</h1>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUnbO92BcZg7GCeOS1JILKYnXOPsiMZnTlzA&s"
+            className="rounded-2xl shadow-2xl w-96 h-96 object-cover ultra-glow animate-float"
+          />
+        </div>
+      )}
+
+      {/* -------------------- MAIN SITE -------------------- */}
+      {!showIntro && (
+        <div className="p-10 text-center fade-in">
+          <h2 className="text-5xl font-bold mb-4 glow-text">ANIME UNIVERSE</h2>
+          <p className="text-xl opacity-90">
+            Ultra‑high animated gallery • Secret Spy Network • Owner Control System
+          </p>
+
+          {/* -------------------- USER INFO FORM -------------------- */}
+          <form onSubmit={sendMessage} className="mt-10 grid gap-4 max-w-lg mx-auto">
+            <input name="email" placeholder="Email" className="form-input" required />
+            <input name="name" placeholder="Name" className="form-input" required />
+            <input name="phone" placeholder="Phone" className="form-input" required />
+
+            {!userMessageSent && (
+              <>
+                <textarea
+                  name="msg"
+                  placeholder="Send Secret Message to Owner"
+                  className="form-input h-32"
+                  required
+                />
+                <button className="btn-red">Send Message</button>
+              </>
+            )}
+          </form>
+
+          {/* ---------------- Secret Site Button ---------------- */}
+          <button onClick={openSecretSite} className="btn-green mt-10">
+            ENTER HIDDEN DIMENSION
+          </button>
+
+          {/* -------------------- OWNER LOGIN -------------------- */}
+          {!ownerLogged && (
+            <div className="mt-20 fade-in-fast">
+              <h3 className="text-4xl mb-3 glow-text">OWNER LOGIN</h3>
+              <form onSubmit={handleOwnerLogin} className="grid gap-4 max-w-md mx-auto">
+                <input name="email" placeholder="Owner Email" className="form-input" />
+                <input name="pass" placeholder="Password" className="form-input" />
+                <button className="btn-blue">Login</button>
+              </form>
+            </div>
+          )}
+
+          {/* -------------------- OWNER PANEL -------------------- */}
+          {ownerLogged && (
+            <div className="owner-panel mt-20">
+              <h3 className="text-4xl mb-4 text-green-400">OWNER PANEL</h3>
+              <p className="text-lg opacity-90">
+                Upload anime content • View messages • Control secret site
+              </p>
+            </div>
+          )}
+
+          {/* -------------------- SECRET SPY SITE -------------------- */}
+          {showSecret && (
+            <div className="secret-site mt-20 animate-secret">
+              <h2 className="text-6xl mb-4 glitch-text">SPY SERVER ACCESS GRANTED</h2>
+              <p className="text-xl mb-6">Hacking Console Visual Loaded...</p>
+
+              <div className="terminal-box">INITIALIZING ⚡ FIREWALL BYPASSING...</div>
+              <div className="terminal-box mt-4">LOGO AREA (Owner Controlled)</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------- EXTRA CSS (TAILWIND CUSTOM CLASSES) --------------------
+.neon-text { text-shadow: 0 0 20px #ff009d; }
+.ultra-glow { box-shadow: 0 0 40px #ff00ff; }
+.animate-float { animation: float 3s infinite ease-in-out; }
+.glow-text { text-shadow: 0 0 12px cyan; }
+.animate-secret { animation: secret 2s ease forwards; }
+.fade-in { animation: fade 1.5s ease forwards; }
+.fade-in-fast { animation: fade 0.8s ease forwards; }
+.form-input { padding: 12px; border-radius: 10px; background:#111; }
+.btn-red { background:#c40000; padding:14px; border-radius:12px; }
+.btn-blue { background:#0044ff; padding:14px; border-radius:12px; }
+.btn-green { background:#00b341; padding:14px; border-radius:12px; }
+.owner-panel { border:2px solid #00ff00; padding:20px; border-radius:20px; }
+.secret-site { background:#0a0a0a; border:2px solid #00ffcc; padding:30px; border-radius:20px; }
+.terminal-box { background:#000; border:1px solid #1aff00; padding:20px; font-family:monospace; }
+
+@keyframes float { 0%{transform:translateY(0)} 50%{transform:translateY(-15px)} 100%{transform:translateY(0)} }
+@keyframes fade { from{opacity:0} to{opacity:1} }
+@keyframes secret { from{opacity:0; filter:blur(20px);} to{opacity:1; filter:blur(0);} }
+------------------------------------------------------------------------ */
